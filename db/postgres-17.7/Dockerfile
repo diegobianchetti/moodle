@@ -4,7 +4,7 @@ FROM debian:trixie-slim
 ARG DEBIAN_FRONTEND=noninteractive \
     REGISTRY="registry.example.com/moodle" \
     SO_VERSION="trixie-slim" \
-    POSTGRES_VERSION="17.7-3.pgdg13+1" \
+    POSTGRES_VERSION="17.9-1.pgdg13+1" \
     PG_MAJOR_MINOR=${POSTGRES_VERSION%%-*}
 
 # Informações de maintainer
