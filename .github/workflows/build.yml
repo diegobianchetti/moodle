@@ -42,7 +42,7 @@ jobs:
           APP_VERSION=$(grep 'MOODLE_APP_VERSION=' app/4.5.8/Dockerfile | head -1 | cut -d'"' -f2)
           ALPINE_VERSION=$(grep 'ALPINE_VERSION=' app/4.5.8/Dockerfile | head -1 | cut -d'"' -f2)
           echo "version=${APP_VERSION}-alpine-${ALPINE_VERSION}" >> "$GITHUB_OUTPUT"
-          echo "image=${{ env.REGISTRY }}/moodle-app" >> "$GITHUB_OUTPUT"
+          echo "image=${{ env.REGISTRY }}/moodle/moodle-app" >> "$GITHUB_OUTPUT"
 
       - name: Build moodle-app
         uses: docker/build-push-action@v6
@@ -81,7 +81,7 @@ jobs:
           SO_VERSION=$(grep 'SO_VERSION=' db/postgres-17.7/Dockerfile | head -1 | cut -d'"' -f2)
           PG_MAJOR_MINOR="${PG_VERSION%%-*}"
           echo "version=postgres-${PG_MAJOR_MINOR}-debian-${SO_VERSION}" >> "$GITHUB_OUTPUT"
-          echo "image=${{ env.REGISTRY }}/moodle-db" >> "$GITHUB_OUTPUT"
+          echo "image=${{ env.REGISTRY }}/moodle/moodle-db" >> "$GITHUB_OUTPUT"
 
       - name: Build moodle-db
         uses: docker/build-push-action@v6
