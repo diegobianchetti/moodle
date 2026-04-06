@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+echo "Configurando PHP a partir de variáveis de ambiente"
+
+PHP_MAIN_INI="${PHP_INI_DIR}/php.ini"
+
+env | grep -E '^PHP_INI-' | while IFS= read -r line; do
+    param_name=$(echo "$line" | cut -d= -f1 | sed 's/^PHP_INI-//' | tr '[:upper:]' '[:lower:]')
+    param_value=$(echo "$line" | cut -d= -f2-)
+    param_value=$(echo "$param_value" | sed "s/^['\"]//; s/['\"]$//")
+
+    echo "Definindo $param_name = $param_value"
+
+    if grep -q "^;\?$param_name\s*=" "$PHP_MAIN_INI"; then
+        sed -i "s|^;\?$param_name\s*=.*|$param_name = $param_value|" "$PHP_MAIN_INI"
+    else
+        echo "$param_name = $param_value" >> "$PHP_MAIN_INI"
+    fi
+done
