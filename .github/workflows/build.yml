@@ -30,7 +30,7 @@ jobs:
 
       - name: Login no GitHub Container Registry
         if: github.event_name != 'pull_request'
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -45,7 +45,7 @@ jobs:
           echo "image=${{ env.REGISTRY }}/moodle-app" >> "$GITHUB_OUTPUT"
 
       - name: Build moodle-app
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: app/4.5.8
           push: ${{ github.event_name != 'pull_request' }}
@@ -68,7 +68,7 @@ jobs:
 
       - name: Login no GitHub Container Registry
         if: github.event_name != 'pull_request'
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -84,7 +84,7 @@ jobs:
           echo "image=${{ env.REGISTRY }}/moodle-db" >> "$GITHUB_OUTPUT"
 
       - name: Build moodle-db
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: db/postgres-17.7
           push: ${{ github.event_name != 'pull_request' }}
