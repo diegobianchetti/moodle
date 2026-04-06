@@ -1,0 +1,95 @@
+name: Build e push das imagens Moodle
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'app/**'
+      - 'db/**'
+  pull_request:
+    paths:
+      - 'app/**'
+      - 'db/**'
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io/${{ github.repository_owner }}
+
+jobs:
+  build-app:
+    name: Build moodle-app
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Login no GitHub Container Registry
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extrair metadados da imagem app
+        id: meta-app
+        run: |
+          APP_VERSION=$(grep 'MOODLE_APP_VERSION=' app/4.5.8/Dockerfile | head -1 | cut -d'"' -f2)
+          ALPINE_VERSION=$(grep 'ALPINE_VERSION=' app/4.5.8/Dockerfile | head -1 | cut -d'"' -f2)
+          echo "version=${APP_VERSION}-alpine-${ALPINE_VERSION}" >> "$GITHUB_OUTPUT"
+          echo "image=${{ env.REGISTRY }}/moodle-app" >> "$GITHUB_OUTPUT"
+
+      - name: Build moodle-app
+        uses: docker/build-push-action@v5
+        with:
+          context: app/4.5.8
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: |
+            ${{ steps.meta-app.outputs.image }}:${{ steps.meta-app.outputs.version }}
+            ${{ steps.meta-app.outputs.image }}:latest
+          pull: true
+          no-cache: true
+
+  build-db:
+    name: Build moodle-db
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Login no GitHub Container Registry
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extrair metadados da imagem db
+        id: meta-db
+        run: |
+          PG_VERSION=$(grep 'POSTGRES_VERSION=' db/postgres-17.7/Dockerfile | head -1 | cut -d'"' -f2)
+          SO_VERSION=$(grep 'SO_VERSION=' db/postgres-17.7/Dockerfile | head -1 | cut -d'"' -f2)
+          PG_MAJOR_MINOR="${PG_VERSION%%-*}"
+          echo "version=postgres-${PG_MAJOR_MINOR}-debian-${SO_VERSION}" >> "$GITHUB_OUTPUT"
+          echo "image=${{ env.REGISTRY }}/moodle-db" >> "$GITHUB_OUTPUT"
+
+      - name: Build moodle-db
+        uses: docker/build-push-action@v5
+        with:
+          context: db/postgres-17.7
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: |
+            ${{ steps.meta-db.outputs.image }}:${{ steps.meta-db.outputs.version }}
+            ${{ steps.meta-db.outputs.image }}:latest
+          pull: true
+          no-cache: true

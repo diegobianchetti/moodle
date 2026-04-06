@@ -1,0 +1,27 @@
+# Arquivos de ambiente
+.env
+.env.*
+!.env.example
+
+# Artefatos de build locais
+*.tar.gz
+*.zip
+*.dump
+
+# Segredos e certificados
+*.pem
+*.key
+*.crt
+*.p12
+
+# Editores e IDEs
+.vscode/
+.idea/
+*.swp
+*~
+
+# macOS
+.DS_Store
+
+# Logs locais
+*.log
