@@ -77,8 +77,8 @@ jobs:
       - name: Extrair metadados da imagem db
         id: meta-db
         run: |
-          PG_VERSION=$(grep 'POSTGRES_VERSION=' db/postgres-17.7/Dockerfile | head -1 | cut -d'"' -f2)
-          SO_VERSION=$(grep 'SO_VERSION=' db/postgres-17.7/Dockerfile | head -1 | cut -d'"' -f2)
+          PG_VERSION=$(grep 'POSTGRES_VERSION=' db/postgres-17.9/Dockerfile | head -1 | cut -d'"' -f2)
+          SO_VERSION=$(grep 'SO_VERSION=' db/postgres-17.9/Dockerfile | head -1 | cut -d'"' -f2)
           PG_MAJOR_MINOR="${PG_VERSION%%-*}"
           echo "version=postgres-${PG_MAJOR_MINOR}-debian-${SO_VERSION}" >> "$GITHUB_OUTPUT"
           echo "image=${{ env.REGISTRY }}/moodle/moodle-db" >> "$GITHUB_OUTPUT"
@@ -86,7 +86,7 @@ jobs:
       - name: Build moodle-db
         uses: docker/build-push-action@v6
         with:
-          context: db/postgres-17.7
+          context: db/postgres-17.9
           push: ${{ github.event_name != 'pull_request' }}
           tags: |
             ${{ steps.meta-db.outputs.image }}:${{ steps.meta-db.outputs.version }}
