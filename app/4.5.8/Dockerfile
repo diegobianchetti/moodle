@@ -9,7 +9,7 @@ ARG USER_WWW="www-data" \
     MOODLE_APP_VERSION="4.5.8"
 
 # Informações de maintainer
-LABEL maintainer="diego@oogway.dev"
+LABEL maintainer="diego@oogway.com.br"
 LABEL description="Moodle ${MOODLE_APP_VERSION} em Alpine Linux ${ALPINE_VERSION}"
 
 # Configuração do sistema

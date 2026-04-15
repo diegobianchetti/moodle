@@ -8,7 +8,7 @@ ARG DEBIAN_FRONTEND=noninteractive \
     PG_MAJOR_MINOR=${POSTGRES_VERSION%%-*}
 
 # Informações de maintainer
-LABEL maintainer="diego@oogway.dev"
+LABEL maintainer="diego@oogway.com.br"
 LABEL description="PostgreSQL ${POSTGRES_VERSION} em Debian Linux ${SO_VERSION}"
 
 # Configuração do sistema

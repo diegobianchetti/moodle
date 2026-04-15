@@ -5,7 +5,7 @@
 #-                                                                      #
 #-    script          /usr/local/bin/deploy-custom-moodle.sh            #
 #-    version         1.0                                               #
-#-    author          Diego Bianchetti (diego@oogway.dev)               #
+#-    author          Diego Bianchetti (diego@oogway.com.br)             #
 #-    license         GNU General Public License v3                     #
 #-                                                                      #
 #========================================================================
