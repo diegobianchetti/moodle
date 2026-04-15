@@ -23,7 +23,7 @@ moodle/
 │           ├── so-configs.sh              # permissões, vim, aliases
 │           └── oci8-extension.sh          # Oracle Instant Client + OCI8
 ├── db/
-│   └── postgres-17.7/
+│   └── postgres-17.9/
 │       ├── Dockerfile
 │       └── root/
 │           ├── custom/
@@ -109,7 +109,7 @@ docker exec moodle-db backup-banco-moodle.sh --cleanup
 
 ## Tuning do PostgreSQL
 
-O arquivo `db/postgres-17.7/root/custom/custom-postgresql.conf` contém
+O arquivo `db/postgres-17.9/root/custom/custom-postgresql.conf` contém
 parâmetros de performance gerados com [pgtune](https://pgtune.leopard.in.ua/)
 para perfil web com 1 GB de RAM. Ajuste conforme o ambiente de destino.
 
