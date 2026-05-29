@@ -1,12 +1,16 @@
 #!/bin/bash
 
 _install_moodle() {
-    echo "Instalando o Moodle..."
+    local _ssl="${MOODLE_SSL:-true}"
+    local _scheme="https"
+    [ "${_ssl}" = "false" ] && _scheme="http"
+
+    echo "Instalando o Moodle... (MOODLE_SSL=${_ssl})"
 
     eval "/usr/bin/php /var/www/html/admin/cli/install.php \
     --chmod=2775 \
     --lang=${MOODLE_LANG} \
-    --wwwroot="https://${MOODLE_HOST}" \
+    --wwwroot="${_scheme}://${MOODLE_HOST}" \
     --dataroot=/var/www/moodledata \
     --dbtype=${MOODLE_DATABASE_TYPE} \
     --dbhost=${MOODLE_DATABASE_HOST} \
@@ -24,9 +28,10 @@ _install_moodle() {
     --agree-license"
 
     if [ -f "/var/www/html/config.php" ]; then
-        local custom_config="//Configuração para habilitar sslProxy\n\
-\$CFG->sslproxy = true;\n\n\
-//Adiciona a configuração personalizada ao config.php\n\
+        local sslproxy=""
+        [ "${_ssl}" = "true" ] && sslproxy="//Configuração para habilitar sslProxy\n\$CFG->sslproxy = true;\n\n"
+
+        local custom_config="${sslproxy}//Adiciona a configuração personalizada ao config.php\n\
 \$custom = '/var/www/html/config-custom.php';\n\
 if (file_exists(\$custom)) {\n\
 require_once(\$custom);\n\
