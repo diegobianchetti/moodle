@@ -8,7 +8,7 @@ Agnósticas de runtime: compatíveis com **Docker** e **Podman**.
 | Imagem | Base | Versão |
 |---|---|---|
 | `moodle-app` | Alpine 3.22 + Apache + PHP 8.3 | Moodle 4.5.8 |
-| `moodle-db`  | Debian trixie-slim | PostgreSQL 17.7 |
+| `moodle-db`  | Debian trixie-slim | PostgreSQL 17.9 |
 
 ## Estrutura do repositório
 
@@ -129,6 +129,58 @@ para `main` (quando há alterações em `app/` ou `db/`) e publica as imagens
 no **GitHub Container Registry** (`ghcr.io`).
 
 Em pull requests, apenas o build é executado (sem push).
+
+## Decisões técnicas
+
+### Alpine para a imagem da aplicação, Debian para o banco
+
+A imagem `moodle-app` usa Alpine: menor superfície de ataque, imagem final mais
+compacta, sem daemons de sistema desnecessários. O custo são as extensões PHP
+que precisam ser compiladas (sem wheels pré-compilados), o que é feito em tempo
+de build via `php-extensions.sh` — não impacta o runtime.
+
+A imagem `moodle-db` usa Debian (trixie-slim): o PostgreSQL tem suporte oficial
+e tooling maduro no ecossistema Debian. Alpine com PostgreSQL exige compilação
+de dependências C e tem histórico de incompatibilidades sutis com extensões de
+banco. Para um banco de dados em produção, previsibilidade vale mais que tamanho
+de imagem.
+
+### `MOODLE_SSL` como variável de ambiente
+
+O `start-moodle.sh` expõe `MOODLE_SSL` (padrão `true`) para controlar dois
+comportamentos acoplados:
+
+- O scheme do `--wwwroot` na instalação: `https://` ou `http://`
+- A injeção de `sslproxy = true` no `config.php`
+
+Sem essa variável, o container sempre gera `wwwroot` com `https://` e ativa
+`sslproxy`. Em ambientes sem terminação TLS real (lab, homologação com proxy
+HTTP puro), o browser tenta carregar assets via `https://` sem certificado
+válido — resultado: página sem CSS. Separar esse comportamento numa variável
+permite usar a mesma imagem em produção (SSL real) e em lab (`MOODLE_SSL=false`)
+sem rebuild.
+
+### `start-moodle.sh` detecta o estado da instalação
+
+O entrypoint não executa `moosh` cegamente a cada start. Ele detecta três
+estados distintos pelo conteúdo do volume persistente:
+
+- **Fresh**: volume vazio → executa instalação completa
+- **Recriado**: container recriado mas banco já existente → pula instalação,
+  restaura `config.php` do volume
+- **Instalado**: estado normal → inicia Apache diretamente
+
+Isso evita que um simples `docker compose restart` dispare uma reinstalação
+acidental, o que apagaria dados do banco.
+
+### PostgreSQL customizado sem rebuild
+
+O `custom-postgresql.conf` é montado como volume e carregado via
+`include_if_exists` no `postgresql.conf` principal. Ajustes de performance
+(shared_buffers, work_mem, etc.) são aplicados com `update_pg_config.sh` +
+`SELECT pg_reload_conf()` — sem reiniciar o container, sem rebuild de imagem.
+Isso separa a configuração operacional da imagem, que permanece genérica e
+reutilizável em ambientes com recursos diferentes.
 
 ## Licença
 
